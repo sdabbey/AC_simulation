@@ -1,1 +1,2 @@
 # AC_simulation
+This project aims to simulate the logic behind the operation of an air conditioner. With the use of comparison of temperatures, this code shows whether the ac turns on, off or stand by.
