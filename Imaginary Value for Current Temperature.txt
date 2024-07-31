@@ -1,0 +1,75 @@
+//Code without user input for current temperature:
+
+
+section .data
+THRESHOLD_COLD db 18         ; Threshold temperature for standby (18°C)
+THRESHOLD_HOT db 25          ; Threshold temperature to turn on AC (25°C)
+
+section .bss
+TEMP resb 1                  ; Byte to store the current temperature
+
+section .text
+global _start
+
+_start:
+    ; Simulate reading the current temperature into the TEMP variable
+    ; In a real scenario, you would read from a hardware sensor
+    ; Here, we simulate with a hardcoded value for demonstration
+    mov byte [TEMP], 20      ; Example: Current temperature is 20°C
+
+    ; Load the current temperature
+    mov al, [TEMP]
+
+    ; Compare with THRESHOLD_COLD
+    cmp al, [THRESHOLD_COLD]
+    jl standby_mode          ; Jump to standby mode if temperature is less than THRESHOLD_COLD
+
+    ; Compare with THRESHOLD_HOT
+    cmp al, [THRESHOLD_HOT]
+    jge turn_on_ac           ; Jump to turn on AC if temperature is greater than or equal to THRESHOLD_HOT
+
+    ; Otherwise, turn off the AC
+    call turn_off_ac
+    jmp end_program
+
+standby_mode:
+    ; Put AC in standby mode
+    ; Replace with actual AC standby control code
+    mov rdi, standby_message
+    call print_message
+    jmp end_program
+
+turn_on_ac:
+    ; Turn on the AC
+    ; Replace with actual AC on control code
+    mov rdi, ac_on_message
+    call print_message
+    jmp end_program
+
+turn_off_ac:
+    ; Turn off the AC
+    ; Replace with actual AC off control code
+    mov rdi, ac_off_message
+    call print_message
+    ret
+
+print_message:
+    ; Print message to stdout
+    mov rax, 1                ; sys_write syscall number
+    mov rdi, 1                ; File descriptor (stdout)
+    mov rsi, rdi              ; Message to write
+    mov rdx, 13               ; Message length
+    syscall
+    ret
+
+end_program:
+    ; Exit the program
+    mov rax, 60               ; sys_exit syscall number
+    xor rdi, rdi              ; Exit status 0
+    syscall
+
+section .data
+standby_message db "AC Standby", 10
+ac_on_message db "AC On", 10
+ac_off_message db "AC Off", 10
+

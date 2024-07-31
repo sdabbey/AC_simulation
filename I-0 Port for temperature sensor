@@ -1,0 +1,62 @@
+section .data
+THRESHOLD_COLD   equ 18      ; Threshold temperature for standby (e.g., 18°C)
+THRESHOLD_HOT    equ 25      ; Threshold temperature to turn on AC (e.g., 25°C)
+
+section .bss
+
+section .text
+global _start
+
+_start:
+    ; Read the current temperature from the sensor (simulate with input port)
+    mov dx, TEMP_SENSOR_PORT ; Load I/O port address for temperature sensor
+    in al, dx                ; Read temperature into al
+    movzx rbx, al            ; Zero-extend al to rbx for comparison
+
+    ; Compare temperature with THRESHOLD_COLD
+    cmp rbx, THRESHOLD_COLD
+    jl standby_mode          ; Jump to standby mode if temperature is less than THRESHOLD_COLD
+
+    ; Compare temperature with THRESHOLD_HOT
+    cmp rbx, THRESHOLD_HOT
+    jge turn_on_ac           ; Jump to turn on AC if temperature is greater than or equal to THRESHOLD_HOT
+
+    ; Otherwise, turn off the AC
+    call turn_off_ac
+    jmp end_program
+
+standby_mode:
+    ; Put AC in standby mode
+    mov dx, AC_CONTROL_PORT  ; Load I/O port address for AC control
+    mov al, AC_STANDBY
+    out dx, al
+    jmp end_program
+
+turn_on_ac:
+    ; Turn on the AC
+    mov dx, AC_CONTROL_PORT  ; Load I/O port address for AC control
+    mov al, AC_ON
+    out dx, al
+    jmp end_program
+
+turn_off_ac:
+    ; Turn off the AC
+    mov dx, AC_CONTROL_PORT  ; Load I/O port address for AC control
+    mov al, AC_OFF
+    out dx, al
+    ret
+
+end_program:
+    ; Exit the program (simulate halt)
+    mov rax, 60              ; syscall: exit
+    xor rdi, rdi             ; status: 0
+    syscall
+
+; Constants for I/O ports and AC states
+%define TEMP_SENSOR_PORT 0x4000
+%define AC_CONTROL_PORT  0x5000
+
+%define AC_ON            1
+%define AC_OFF           0
+%define AC_STANDBY       2
+
